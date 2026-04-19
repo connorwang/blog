@@ -58,3 +58,34 @@ describe('getAllArticles', () => {
     expect(result.map((a) => a.slug).sort()).toEqual(['published', 'wip']);
   });
 });
+
+import { groupByMonth } from './articles';
+
+describe('groupByMonth', () => {
+  it('groups sorted articles into { label, articles } buckets', () => {
+    const articles = [
+      make({ slug: 'apr2', date: new Date('2026-04-07') }),
+      make({ slug: 'apr1', date: new Date('2026-04-01') }),
+      make({ slug: 'mar1', date: new Date('2026-03-22') }),
+    ];
+
+    const groups = groupByMonth(articles);
+
+    expect(groups).toEqual([
+      {
+        key: '2026-04',
+        label: 'April 2026',
+        articles: [articles[0], articles[1]],
+      },
+      {
+        key: '2026-03',
+        label: 'March 2026',
+        articles: [articles[2]],
+      },
+    ]);
+  });
+
+  it('returns an empty array for no articles', () => {
+    expect(groupByMonth([])).toEqual([]);
+  });
+});
