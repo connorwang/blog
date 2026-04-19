@@ -1,0 +1,28 @@
+---
+import { getAllArticles, groupByMonth } from '../../lib/articles';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleRow from '../../components/ArticleRow.astro';
+
+const articles = await getAllArticles();
+const groups = groupByMonth(articles);
+---
+
+<BaseLayout title="Articles — Connor's Blog">
+  <div class="mx-auto max-w-prose py-8 sm:py-12">
+    <h1 class="font-body text-3xl sm:text-4xl font-bold mb-8">Articles</h1>
+    {groups.length === 0 ? (
+      <p class="opacity-70">No articles yet.</p>
+    ) : (
+      groups.map((group) => (
+        <section class="mb-10">
+          <h2 class="font-ui text-sm uppercase tracking-wider opacity-60 mb-3">
+            {group.label}
+          </h2>
+          <ul>
+            {group.articles.map((a) => <ArticleRow article={a} />)}
+          </ul>
+        </section>
+      ))
+    )}
+  </div>
+</BaseLayout>
