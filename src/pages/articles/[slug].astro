@@ -1,11 +1,11 @@
 ---
-import { getAllArticles, type Article } from '../../lib/articles';
+import { getAllArticles, articleSlug, type Article } from '../../lib/articles';
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
 
 export async function getStaticPaths() {
   const articles = await getAllArticles();
   return articles.map((a) => ({
-    params: { slug: a.data.slug ?? a.slug },
+    params: { slug: articleSlug(a) },
     props: { article: a },
   }));
 }

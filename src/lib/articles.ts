@@ -2,6 +2,12 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type Article = CollectionEntry<'articles'>;
 
+const DATE_PREFIX = /^\d{4}-\d{2}-\d{2}-/;
+
+export function articleSlug(article: Article): string {
+  return article.slug.replace(DATE_PREFIX, '');
+}
+
 export async function getAllArticles(
   opts: { includeDrafts?: boolean } = {},
 ): Promise<Article[]> {

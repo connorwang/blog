@@ -532,7 +532,8 @@ export type Article = CollectionEntry<'articles'>;
 export async function getAllArticles(
   opts: { includeDrafts?: boolean } = {},
 ): Promise<Article[]> {
-  const includeDrafts = opts.includeDrafts ?? import.meta.env.DEV;
+  const includeDrafts =
+    opts.includeDrafts ?? import.meta.env.MODE === 'development';
   const all = await getCollection('articles');
   const filtered = includeDrafts ? all : all.filter((a) => !a.data.draft);
   return filtered.sort(
@@ -541,7 +542,7 @@ export async function getAllArticles(
 }
 ```
 
-Note: `import.meta.env.DEV` is `true` during `astro dev` and `false` during `astro build`, which matches the spec (drafts render locally, not in production). The test overrides with `includeDrafts: true` explicitly.
+Note: `import.meta.env.MODE` is `'development'` during `astro dev`, `'production'` during `astro build`, and `'test'` under vitest. Gating on `=== 'development'` gives the intended semantic (drafts shown in dev server only) and makes tests default to draft-excluded — matching production behavior. The test overrides with `includeDrafts: true` explicitly when needed.
 
 - [ ] **Step 2: Run test to verify it passes**
 
