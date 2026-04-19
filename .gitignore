@@ -19,6 +19,10 @@ dist/
 # claude code session state
 .ccrc
 
+# playwright mcp artifacts
+.playwright-mcp/
+*.playwright-mcp.png
+
 # editor
 .vscode/
 .idea/
