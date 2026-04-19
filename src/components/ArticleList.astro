@@ -1,0 +1,121 @@
+---
+import { getAllArticles } from '../lib/articles';
+
+const articles = await getAllArticles();
+---
+<div
+  id="article-panel"
+  class="fixed inset-0 z-40 hidden"
+  aria-hidden="true"
+>
+  <div
+    id="article-panel-overlay"
+    class="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-200"
+  ></div>
+  <aside
+    id="article-panel-aside"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Article navigation"
+    class="absolute right-0 top-0 h-full w-80 max-w-[90vw] bg-fill text-text translate-x-full transition-transform duration-200 shadow-xl flex flex-col"
+    tabindex="-1"
+  >
+    <div class="flex items-center justify-between p-4">
+      <a
+        href="/articles"
+        class="font-ui font-medium hover:underline underline-offset-4"
+      >
+        All articles
+      </a>
+      <button
+        id="article-panel-close"
+        type="button"
+        aria-label="Close article navigation"
+        class="p-1 hover:opacity-75"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto px-4 py-2">
+      <ul class="space-y-2">
+        {articles.map((a) => (
+          <li>
+            <a
+              href={`/articles/${a.data.slug ?? a.slug}`}
+              class="block py-1 hover:underline underline-offset-4 decoration-dashed"
+            >
+              {a.data.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="p-4 border-t border-border/40">
+      <a
+        href="/about"
+        class="font-ui font-medium hover:underline underline-offset-4"
+      >
+        About
+      </a>
+    </div>
+  </aside>
+</div>
+
+<script is:inline>
+  (() => {
+    const panel = document.getElementById('article-panel');
+    const overlay = document.getElementById('article-panel-overlay');
+    const aside = document.getElementById('article-panel-aside');
+    const closeBtn = document.getElementById('article-panel-close');
+    let lastFocused = null;
+
+    const open = () => {
+      lastFocused = document.activeElement;
+      panel.classList.remove('hidden');
+      panel.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => {
+        overlay.classList.remove('opacity-0');
+        aside.classList.remove('translate-x-full');
+      });
+      aside.focus();
+      document.body.style.overflow = 'hidden';
+    };
+
+    const close = () => {
+      overlay.classList.add('opacity-0');
+      aside.classList.add('translate-x-full');
+      panel.setAttribute('aria-hidden', 'true');
+      setTimeout(() => panel.classList.add('hidden'), 200);
+      document.body.style.overflow = '';
+      if (lastFocused instanceof HTMLElement) lastFocused.focus();
+    };
+
+    document.addEventListener('click', (e) => {
+      const trigger = e.target.closest('[data-article-panel-trigger]');
+      if (trigger) {
+        e.preventDefault();
+        open();
+      }
+    });
+
+    overlay.addEventListener('click', close);
+    closeBtn.addEventListener('click', close);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !panel.classList.contains('hidden')) close();
+    });
+  })();
+</script>
