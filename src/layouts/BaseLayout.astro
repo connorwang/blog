@@ -60,5 +60,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     </main>
     <Footer />
     <ArticleList />
+    <script>
+      import { inject } from '@vercel/analytics';
+      inject();
+    </script>
   </body>
 </html>
