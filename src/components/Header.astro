@@ -1,0 +1,36 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+---
+<header class="w-full">
+  <div class="mx-auto w-full max-w-page px-4 py-4 sm:py-8 flex items-center justify-between">
+    <a
+      href="/"
+      class="font-ui font-semibold text-xl sm:text-2xl hover:opacity-80"
+    >
+      Connor
+    </a>
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        aria-label="Open article navigation"
+        data-article-panel-trigger
+        class="p-1 hover:opacity-75"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M3 6h18M3 12h18M3 18h18" />
+        </svg>
+      </button>
+      <ThemeToggle />
+    </div>
+  </div>
+</header>
