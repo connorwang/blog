@@ -16,6 +16,9 @@ dist/
 # macOS
 .DS_Store
 
+# claude code session state
+.ccrc
+
 # editor
 .vscode/
 .idea/
