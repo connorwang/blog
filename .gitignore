@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# astro build output
+dist/
+.astro/
+
+# vercel
+.vercel/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# macOS
+.DS_Store
+
+# editor
+.vscode/
+.idea/
+
+# logs
+npm-debug.log*
+*.log
