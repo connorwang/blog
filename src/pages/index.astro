@@ -1,0 +1,29 @@
+---
+import { getAllArticles } from '../lib/articles';
+import ArticleLayout from '../layouts/ArticleLayout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const articles = await getAllArticles();
+const latest = articles[0];
+
+let Content: Awaited<ReturnType<NonNullable<typeof latest>['render']>>['Content'] | null = null;
+if (latest) {
+  ({ Content } = await latest.render());
+}
+---
+
+{latest && Content ? (
+  <ArticleLayout
+    title={latest.data.title}
+    date={latest.data.date}
+    description={latest.data.description}
+  >
+    <Content />
+  </ArticleLayout>
+) : (
+  <BaseLayout title="Connor's Blog">
+    <div class="mx-auto max-w-prose py-16 text-center">
+      <p class="opacity-70">No articles yet — check back soon.</p>
+    </div>
+  </BaseLayout>
+)}
