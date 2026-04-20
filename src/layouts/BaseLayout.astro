@@ -57,7 +57,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
   <body>
     <a href="#main" class="skip-link">Skip to content</a>
     <Header />
-    <main id="main" class="mx-auto w-full max-w-page px-4 flex-1">
+    <main id="main" class="mx-auto w-full max-w-page px-4 flex-1 flex flex-col">
       <slot />
     </main>
     <Footer />
