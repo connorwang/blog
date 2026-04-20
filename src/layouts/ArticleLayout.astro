@@ -35,7 +35,7 @@ const LOCALE_FOR_LANG: Record<string, string> = {
   description={defaultData.description}
   ogType="article"
 >
-  <article class="mx-auto w-full max-w-prose pt-8 sm:pt-12 pb-6">
+  <article class="w-full pt-8 sm:pt-12 pb-6">
     {variants.map(({ article, Content }) => {
       const lang = articleLang(article);
       const isDefault = lang === DEFAULT_LANG;
@@ -67,7 +67,7 @@ const LOCALE_FOR_LANG: Record<string, string> = {
           </header>
           <div
             lang={lang}
-            class="prose prose-lg dark:prose-invert max-w-none
+            class="prose prose-lg dark:prose-invert
                    prose-headings:font-body
                    prose-h2:font-bold prose-h3:italic prose-h3:font-semibold
                    prose-a:decoration-dashed prose-a:underline-offset-8
