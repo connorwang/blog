@@ -1,27 +1,38 @@
 ---
-import { getAllArticles, articleSlug, type Article } from '../../lib/articles';
+import {
+  getAllArticles,
+  getArticleVariants,
+  articleKey,
+  type Article,
+} from '../../lib/articles';
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
 
 export async function getStaticPaths() {
-  const articles = await getAllArticles();
-  return articles.map((a) => ({
-    params: { slug: articleSlug(a) },
-    props: { article: a },
-  }));
+  const all = await getAllArticles();
+  return Promise.all(
+    all.map(async (a) => {
+      const key = articleKey(a);
+      const variants = await getArticleVariants(key);
+      return {
+        params: { slug: key },
+        props: { variants },
+      };
+    }),
+  );
 }
 
 interface Props {
-  article: Article;
+  variants: Article[];
 }
 
-const { article } = Astro.props;
-const { Content } = await article.render();
+const { variants } = Astro.props;
+
+const rendered = await Promise.all(
+  variants.map(async (a) => ({
+    article: a,
+    Content: (await a.render()).Content,
+  })),
+);
 ---
 
-<ArticleLayout
-  title={article.data.title}
-  date={article.data.date}
-  description={article.data.description}
->
-  <Content />
-</ArticleLayout>
+<ArticleLayout variants={rendered} />

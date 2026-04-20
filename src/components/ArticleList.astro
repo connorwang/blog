@@ -1,5 +1,5 @@
 ---
-import { getAllArticles, articleSlug } from '../lib/articles';
+import { getAllArticles, articleKey } from '../lib/articles';
 
 const articles = await getAllArticles();
 ---
@@ -54,7 +54,7 @@ const articles = await getAllArticles();
         {articles.map((a) => (
           <li>
             <a
-              href={`/articles/${articleSlug(a)}`}
+              href={`/articles/${articleKey(a)}`}
               class="block py-1 hover:underline underline-offset-4 decoration-dashed"
             >
               {a.data.title}

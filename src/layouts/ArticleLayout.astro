@@ -1,41 +1,125 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import { articleLang, DEFAULT_LANG, type Article } from '../lib/articles';
 
-interface Props {
-  title: string;
-  date: Date;
-  description?: string;
+interface RenderedVariant {
+  article: Article;
+  Content: any;
 }
 
-const { title, date, description } = Astro.props;
+interface Props {
+  variants: RenderedVariant[];
+}
 
-const formatted = date.toLocaleDateString('en-US', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-});
+const { variants } = Astro.props;
+
+const defaultVariant =
+  variants.find((v) => articleLang(v.article) === DEFAULT_LANG) ?? variants[0];
+const defaultData = defaultVariant.article.data;
+
+const formatDate = (d: Date, locale: string) =>
+  d.toLocaleDateString(locale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+const LOCALE_FOR_LANG: Record<string, string> = {
+  en: 'en-US',
+  zh: 'zh-CN',
+};
 ---
 
-<BaseLayout title={title} description={description} ogType="article">
+<BaseLayout
+  title={defaultData.title}
+  description={defaultData.description}
+  ogType="article"
+>
   <article class="mx-auto w-full max-w-prose pt-8 sm:pt-12 pb-6">
-    <header class="mb-8">
-      <h1 class="font-body text-4xl sm:text-5xl font-bold leading-tight mb-2">
-        {title}
-      </h1>
-      <time datetime={date.toISOString()} class="text-sm opacity-60 font-ui">
-        {formatted}
-      </time>
-    </header>
-    <div
-      class="prose prose-lg dark:prose-invert max-w-none
-             prose-headings:font-body
-             prose-h2:font-bold prose-h3:italic prose-h3:font-semibold
-             prose-a:decoration-dashed prose-a:underline-offset-8
-             hover:prose-a:text-accent
-             prose-img:rounded prose-img:my-8
-             prose-blockquote:border-accent/50"
-    >
-      <slot />
-    </div>
+    {variants.map(({ article, Content }) => {
+      const lang = articleLang(article);
+      const isDefault = lang === DEFAULT_LANG;
+      const locale = LOCALE_FOR_LANG[lang] ?? 'en-US';
+      return (
+        <section data-article-lang={lang} class:list={[!isDefault && 'hidden']}>
+          {!isDefault && (
+            <button
+              type="button"
+              data-set-article-lang={DEFAULT_LANG}
+              class="font-ui text-sm opacity-60 hover:opacity-100 hover:underline underline-offset-4 mb-6"
+            >
+              Read in English
+            </button>
+          )}
+          <header class="mb-8">
+            <h1
+              class="font-body text-4xl sm:text-5xl font-bold leading-tight mb-2"
+              lang={lang}
+            >
+              {article.data.title}
+            </h1>
+            <time
+              datetime={article.data.date.toISOString()}
+              class="text-sm opacity-60 font-ui"
+            >
+              {formatDate(article.data.date, locale)}
+            </time>
+          </header>
+          <div
+            lang={lang}
+            class="prose prose-lg dark:prose-invert max-w-none
+                   prose-headings:font-body
+                   prose-h2:font-bold prose-h3:italic prose-h3:font-semibold
+                   prose-a:decoration-dashed prose-a:underline-offset-8
+                   hover:prose-a:text-accent
+                   prose-img:rounded prose-img:my-8
+                   prose-blockquote:border-accent/50"
+          >
+            <Content />
+          </div>
+        </section>
+      );
+    })}
   </article>
+
+  <script is:inline>
+    (() => {
+      const sections = document.querySelectorAll('[data-article-lang]');
+      if (sections.length === 0) return;
+
+      const available = new Set();
+      sections.forEach((s) => available.add(s.getAttribute('data-article-lang')));
+
+      const pickLang = () => {
+        const stored = localStorage.getItem('article-lang');
+        if (stored && available.has(stored)) return stored;
+        const sys = (navigator.language || 'en').split('-')[0].toLowerCase();
+        if (available.has(sys)) return sys;
+        return 'en';
+      };
+
+      const apply = (lang) => {
+        sections.forEach((s) => {
+          const match = s.getAttribute('data-article-lang') === lang;
+          s.classList.toggle('hidden', !match);
+          if (match) {
+            const h1 = s.querySelector('h1');
+            if (h1 && h1.textContent) document.title = h1.textContent;
+            document.documentElement.setAttribute('lang', lang);
+          }
+        });
+      };
+
+      apply(pickLang());
+
+      document.querySelectorAll('[data-set-article-lang]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-set-article-lang');
+          if (!target) return;
+          localStorage.setItem('article-lang', target);
+          apply(target);
+        });
+      });
+    })();
+  </script>
 </BaseLayout>

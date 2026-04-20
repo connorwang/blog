@@ -1,5 +1,5 @@
 ---
-import { articleSlug, type Article } from '../lib/articles';
+import { articleKey, type Article } from '../lib/articles';
 
 interface Props {
   article: Article;
@@ -15,7 +15,7 @@ const formatted = article.data.date.toLocaleDateString('en-US', {
 ---
 <li class="flex items-baseline justify-between gap-4 py-1">
   <a
-    href={`/articles/${articleSlug(article)}`}
+    href={`/articles/${articleKey(article)}`}
     class="font-body hover:underline decoration-dashed underline-offset-4"
   >
     {article.data.title}

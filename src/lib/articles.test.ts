@@ -7,7 +7,11 @@ vi.mock('astro:content', () => ({
 }));
 
 import { getCollection } from 'astro:content';
-import { getAllArticles } from './articles';
+import {
+  getAllArticles,
+  articleKey,
+  articleLang,
+} from './articles';
 
 type Entry = CollectionEntry<'articles'>;
 
@@ -56,6 +60,64 @@ describe('getAllArticles', () => {
 
     const result = await getAllArticles({ includeDrafts: true });
     expect(result.map((a) => a.slug).sort()).toEqual(['published', 'wip']);
+  });
+
+  it('returns only the default-language variant of each article by default', async () => {
+    vi.mocked(getCollection).mockResolvedValue([
+      make({ slug: 'hello-world' }),
+      make({ slug: 'hello-world.zh' }),
+      make({ slug: 'other' }),
+    ]);
+
+    const result = await getAllArticles();
+    expect(result.map((a) => a.slug).sort()).toEqual(['hello-world', 'other']);
+  });
+
+  it('returns every variant when allLanguages=true', async () => {
+    vi.mocked(getCollection).mockResolvedValue([
+      make({ slug: 'hello-world' }),
+      make({ slug: 'hello-world.zh' }),
+    ]);
+
+    const result = await getAllArticles({ allLanguages: true });
+    expect(result.map((a) => a.slug).sort()).toEqual([
+      'hello-world',
+      'hello-world.zh',
+    ]);
+  });
+});
+
+describe('articleLang', () => {
+  it('returns "en" when no language suffix is present', () => {
+    expect(articleLang(make({ slug: '2026-04-20-hello-world' }))).toBe('en');
+  });
+
+  it('extracts a two-letter language suffix', () => {
+    expect(articleLang(make({ slug: '2026-04-20-hello-world.zh' }))).toBe('zh');
+  });
+
+  it('extracts a region-tagged language suffix and lowercases it', () => {
+    expect(articleLang(make({ slug: '2026-04-20-hello-world.zh-cn' }))).toBe(
+      'zh-cn',
+    );
+  });
+});
+
+describe('articleKey', () => {
+  it('strips the YYYY-MM-DD- date prefix', () => {
+    expect(articleKey(make({ slug: '2026-04-20-hello-world' }))).toBe(
+      'hello-world',
+    );
+  });
+
+  it('strips both the date prefix and the language suffix', () => {
+    expect(articleKey(make({ slug: '2026-04-20-hello-world.zh' }))).toBe(
+      'hello-world',
+    );
+  });
+
+  it('returns the slug unchanged when no date prefix or lang suffix', () => {
+    expect(articleKey(make({ slug: 'plain' }))).toBe('plain');
   });
 });
 
